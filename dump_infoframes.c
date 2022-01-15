@@ -14,25 +14,35 @@
 unsigned long parse_int (char *str);
 
 
+static const unsigned int hdmi_ram_pack_address[2][8] =
+{
+	{ 0xfef01b24, 0xfef01b48, 0xfef01b6c, 0xfef01b90, 0xfef01b90, 0xfef01bb4, 0xfef01bd8, 0xfef01bfc }, 
+	{ 0xfe902424, 0xfe902448, 0xfe90246c, 0xfe902490, 0xfe902490, 0xfe9024b4, 0xfe9024d8, 0xfe9024fc }, 
+};
+
 int main (int argc, char *argv[]) {
 	unsigned long addr;
-	int type, len;
+	int type, len, idx;
 	int devmem;
 	void *mapping;
-size_t length;
+//	size_t length;
 	long page_size;
 	off_t map_base, extra_bytes;
 
 	char *buf;
-	ssize_t ret;
+//	ssize_t ret;
 
-	if (argc != 2) {
-		fprintf(stderr, "Usage: %s Infoframe type(in hex)\n", argv[0]);
+
+	if (argc != 3) {
+		fprintf(stderr, "Usage: %s <Pi Model (RPI3 or RPI4)> <Infoframe type(in hex)>\n", argv[0]);
 		exit(EXIT_FAILURE);
 	}
-
-	type = parse_int(argv[1]);
-	//length = parse_int(argv[2]);
+    if (strcmp(argv[1], "RPI3")) {
+		idx = 0;	
+	} else if (strcmp(argv[1], "RPI4")) {
+		idx = 1;
+	}
+	type = parse_int(argv[2]);
 
 	devmem = open("/dev/mem", O_RDONLY);
 	if (devmem == -1) {
@@ -42,25 +52,26 @@ size_t length;
 	    fflush(stdout);
 	switch (type) {
 		case 0x81:
-			addr = 0xfef01b24;
+			addr = hdmi_ram_pack_address[idx][0];
+			printf ("xxxx %x\n",addr);
 			break;
 		case 0x82:
-			addr = 0xfef01b48;
+			addr = hdmi_ram_pack_address[idx][1];
 			break;
 		case 0x83:
-			addr = 0xfef01b6c;
+			addr = hdmi_ram_pack_address[idx][2];
 			break;
 		case 0x84:
-			addr = 0xfef01b90;
+			addr = hdmi_ram_pack_address[idx][3];
 			break;
 		case 0x85:
-			addr = 0xfef01bb4;
+			addr = hdmi_ram_pack_address[idx][4];
 			break;
 		case 0x86:
-			addr = 0xfef01bd8;
+			addr = hdmi_ram_pack_address[idx][5];
 			break;
 		case 0x87:
-			addr = 0xfef01bfc;
+			addr = hdmi_ram_pack_address[idx][6];
 			break;
 		default:
 			printf ("Unknown infoframe type\n");

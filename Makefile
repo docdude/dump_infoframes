@@ -1,7 +1,7 @@
 EXECUTABLE = dump_infoframes
 OBJECTS = dump_infoframes.o
 
-CFLAGS = -Wall -Wextra -pedantic -std=c99
+CFLAGS = -g -Wall -Wextra -pedantic -std=c99
 
 all: $(EXECUTABLE)
 
