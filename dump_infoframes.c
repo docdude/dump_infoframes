@@ -14,10 +14,10 @@
 unsigned long parse_int (char *str);
 
 
-static const unsigned int hdmi_ram_pack_address[2][8] =
+static const unsigned int hdmi_ram_pack_address[2][7] =
 {
-	{ 0xfef01b24, 0xfef01b48, 0xfef01b6c, 0xfef01b90, 0xfef01b90, 0xfef01bb4, 0xfef01bd8, 0xfef01bfc }, 
-	{ 0xfe902424, 0xfe902448, 0xfe90246c, 0xfe902490, 0xfe902490, 0xfe9024b4, 0xfe9024d8, 0xfe9024fc }, 
+	{ 0xfef01b24, 0xfef01b48, 0xfef01b6c, 0xfef01b90, 0xfef01bb4, 0xfef01bd8, 0xfef01bfc }, 
+	{ 0xfe902424, 0xfe902448, 0xfe90246c, 0xfe902490,  0xfe9024b4, 0xfe9024d8, 0xfe9024fc }, 
 };
 
 int main (int argc, char *argv[]) {
@@ -53,7 +53,6 @@ int main (int argc, char *argv[]) {
 	switch (type) {
 		case 0x81:
 			addr = hdmi_ram_pack_address[idx][0];
-			printf ("xxxx %x\n",addr);
 			break;
 		case 0x82:
 			addr = hdmi_ram_pack_address[idx][1];
