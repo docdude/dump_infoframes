@@ -34,10 +34,10 @@ int main (int argc, char *argv[]) {
 
 
 	if (argc != 3) {
-		fprintf(stderr, "Usage: %s <Pi Model (RPI3 or RPI4)> <Infoframe type(in hex)>\n", argv[0]);
+		fprintf(stderr, "Usage: %s <Pi Model (RPI2 or RPI3 or RPI4)> <Infoframe type(in hex)>\n", argv[0]);
 		exit(EXIT_FAILURE);
 	}
-    if (strcmp(argv[1], "RPI3")) {
+    if (strcmp(argv[1], "RPI2") || strcmp(argv[1], "RPI3")) {
 		idx = 0;	
 	} else if (strcmp(argv[1], "RPI4")) {
 		idx = 1;
