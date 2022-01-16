@@ -17,7 +17,7 @@ unsigned long parse_int (char *str);
 static const unsigned int hdmi_ram_pack_address[2][7] =
 {
 	{ 0xfef01b24, 0xfef01b48, 0xfef01b6c, 0xfef01b90, 0xfef01bb4, 0xfef01bd8, 0xfef01bfc }, 
-	{ 0xfe902424, 0xfe902448, 0xfe90246c, 0xfe902490,  0xfe9024b4, 0xfe9024d8, 0xfe9024fc }, 
+	{ 0x3f902424, 0x3f902448, 0x3f90246c, 0x3f902490, 0x3f9024b4, 0x3f9024d8, 0x3f9024fc }, 
 };
 
 int main (int argc, char *argv[]) {
