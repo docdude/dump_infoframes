@@ -38,9 +38,9 @@ int main (int argc, char *argv[]) {
 		exit(EXIT_FAILURE);
 	}
     if (strcmp(argv[1], "RPI2") || strcmp(argv[1], "RPI3")) {
-		idx = 0;	
+		idx = 1;	
 	} else if (strcmp(argv[1], "RPI4")) {
-		idx = 1;
+		idx = 0;
 	}
 	type = parse_int(argv[2]);
 
