@@ -57,9 +57,9 @@ int main (int argc, char *argv[]) {
 		fprintf(stderr, "Usage: %s <Pi Model (RPI2 or RPI3 or RPI4)> <Infoframe type(in hex)>\n", argv[0]);
 		exit(EXIT_FAILURE);
 	}
-    if (strcmp(argv[1], "RPI2") || strcmp(argv[1], "RPI3")) {
+    if (!strcmp(argv[1], "RPI2") || !strcmp(argv[1], "RPI3")) {
 		idx = 1;	
-	} else if (strcmp(argv[1], "RPI4")) {
+	} else if (!strcmp(argv[1], "RPI4")) {
 		idx = 0;
 	}
 	type = parse_int(argv[2]);
