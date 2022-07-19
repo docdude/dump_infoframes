@@ -27,8 +27,18 @@
 #include <sys/mman.h>
 #include <fcntl.h>
 #include <unistd.h>
+#include <inttypes.h>
+#include <ctype.h>
+
 
 #define HDMI_INFOFRAME_HEADER_SIZE 4
+static inline void *bytecopy(void *const dest, void const *const src, size_t bytes)
+{
+        while (bytes-->(size_t)0)
+                ((unsigned int *)dest)[bytes] = ((unsigned int const *)src)[bytes];
+
+        return dest;
+}
 
 
 unsigned long parse_int (char *str);
@@ -41,24 +51,24 @@ static const unsigned int hdmi_ram_pack_address[2][7] =
 };
 
 int main (int argc, char *argv[]) {
-	unsigned long addr;
+	uint64_t addr;
 	int type, len, idx;
 	int devmem;
-	void *mapping;
-//	size_t length;
-	long page_size;
-	off_t map_base, extra_bytes;
+	void *mapping, *virt_addr;
+	unsigned offset;
+	unsigned int page_size, map_size;
+	off_t map_base;
 
 	char *buf;
-//	ssize_t ret;
-
 
 	if (argc != 3) {
 		fprintf(stderr, "Usage: %s <Pi Model (RPI2 or RPI3 or RPI4)> <Infoframe type(in hex)>\n", argv[0]);
 		exit(EXIT_FAILURE);
 	}
-    if (!strcmp(argv[1], "RPI2") || !strcmp(argv[1], "RPI3")) {
+    if (!strcmp(argv[1], "RPI2")) {
 		idx = 1;	
+	} else if (!strcmp(argv[1], "RPI3")) {
+		idx = 1;
 	} else if (!strcmp(argv[1], "RPI4")) {
 		idx = 0;
 	}
@@ -96,20 +106,27 @@ int main (int argc, char *argv[]) {
 			printf ("Unknown infoframe type\n");
 			break;
 	}
-		
+
 	page_size = sysconf(_SC_PAGE_SIZE);
+	map_size = page_size;
 
-	map_base = addr & ~(page_size - 1);
-	extra_bytes = addr - map_base;
+	offset = (unsigned int)(addr & (page_size-1));
+    if (offset + 4 > page_size ) {
+        // Access straddles page boundary:  add another page:
+        map_size += page_size;
+    }
+//	map_base = addr & ~(page_size - 1);
+	map_base = addr & ~((typeof(addr))page_size-1);
+//	extra_bytes = addr - map_base;
 
-	mapping = mmap(NULL, 4096UL, PROT_READ, MAP_SHARED, devmem, map_base);
+	mapping = mmap(NULL, map_size, PROT_READ, MAP_SHARED, devmem, map_base);
 
 	if (mapping == MAP_FAILED) {
 		perror("Could not map memory");
 		goto map_fail;
 	}
     fflush(stdout);
-	buf = malloc(50);
+	buf = malloc(1000);
 	if (buf == NULL) {
 		fprintf(stderr, "Failed to allocate memory\n");
 		goto alloc_fail;
@@ -120,8 +137,9 @@ int main (int argc, char *argv[]) {
 	 * complaining quite as much as if we passed the mmap()ed
 	 * buffer directly to write().
 	 */
+	virt_addr = mapping+offset;
 
-	memcpy(buf, (char *)mapping+extra_bytes, 50);
+	buf = bytecopy(buf,virt_addr,50);
 	int is_valid = 0;
 	switch (buf[0]) {
 		case 0x81:
@@ -171,7 +189,7 @@ int main (int argc, char *argv[]) {
 	free(buf);
 
 alloc_fail:
-	munmap(mapping, 50 + extra_bytes);
+	munmap(mapping, 50 + offset);
 
 map_fail:
 	close(devmem);
