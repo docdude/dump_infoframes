@@ -53,6 +53,7 @@ static const unsigned int hdmi_ram_pack_address[2][7] =
 int main (int argc, char *argv[]) {
 	uint64_t addr;
 	int type, len, idx;
+	const char* if_type;
 	int devmem;
 	void *mapping, *virt_addr;
 	unsigned offset;
@@ -144,30 +145,39 @@ int main (int argc, char *argv[]) {
 	switch (buf[0]) {
 		case 0x81:
 			if (buf[1] == 0x01 || buf[1] == 0x02 || buf[1] == 0x03) is_valid = 1;
+			if_type = "HVS IF";
 			break;
 		case 0x82:
 			if (buf[1] == 0x02 || buf[1] == 0x03) is_valid = 1;
+			if_type = "AVI_IF";
 			break;
 		case 0x83:
 			if (buf[1] == 0x01) is_valid = 1;
+			if_type = "SPD_IF";
 			break;
 		case 0x84:
 			if (buf[1] == 0x01) is_valid = 1;
+			if_type = "AUD IF";
 			break;
 		case 0x85:
 			if (buf[1] == 0x01) is_valid = 1;
+			if_type = "MPEG IF";
 			break;
 		case 0x86:
 			if (buf[1] == 0x01) is_valid = 1;
+			if_type = "NTSC IF";
 			break;
 		case 0x87:
 			if (buf[1] == 0x01) is_valid = 1;
+			if_type = "DRM_IF";
 			break;
 		default:
 			printf ("invalid infoframe\n");
 			is_valid = 0;
 			break;
 	}
+
+
 	/*
 	 * data byte 3 or buf[2] is size of infoframe
 	 * add header size which includes type, version,
@@ -176,7 +186,7 @@ int main (int argc, char *argv[]) {
 	len = buf[2] + HDMI_INFOFRAME_HEADER_SIZE;  
 	
 	if (is_valid) {
-		printf ("%02x",buf[0]);
+		printf ("%s: %02x",if_type, buf[0]);
 		for (int i=1; i < len; i++) {
 			if (i==3 || i==11 || i==19 || i==27 || i==35) {  // weird hack to compensate for unknown addition addional 0x00 every 8th byte starting at 3 array index
 				i++; 		
