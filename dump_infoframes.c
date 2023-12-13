@@ -40,7 +40,6 @@ static inline void *bytecopy(void *const dest, void const *const src, size_t byt
         return dest;
 }
 
-
 unsigned long parse_int (char *str);
 
 
@@ -59,7 +58,7 @@ int main (int argc, char *argv[]) {
 	unsigned offset;
 	unsigned int page_size, map_size;
 	off_t map_base;
-
+	FILE *out;
 	char *buf;
 
 	if (argc != 3) {
@@ -141,6 +140,8 @@ int main (int argc, char *argv[]) {
 	virt_addr = mapping+offset;
 
 	buf = bytecopy(buf,virt_addr,50);
+
+	
 	int is_valid = 0;
 	switch (buf[0]) {
 		case 0x81:
@@ -171,7 +172,7 @@ int main (int argc, char *argv[]) {
 			if (buf[1] == 0x01) is_valid = 1;
 			if_type = "DRM_IF";
 			break;
-		default:
+		default: 
 			printf ("invalid infoframe\n");
 			is_valid = 0;
 			break;
@@ -183,19 +184,27 @@ int main (int argc, char *argv[]) {
 	 * add header size which includes type, version,
 	 * size and checksum (4 bytes)
 	 */
-	len = buf[2] + HDMI_INFOFRAME_HEADER_SIZE;  
+	len = buf[2]  + HDMI_INFOFRAME_HEADER_SIZE;  
 	
 	if (is_valid) {
+			if ((out = fopen("ifdump.log", "w")) == NULL) {
+		perror("ifdump.log");
+		return -1;
+	}
+
 		printf ("%s: %02x",if_type, buf[0]);
+		fwrite(&buf[0],1,1,out);
 		for (int i=1; i < len; i++) {
-			if (i==3 || i==11 || i==19 || i==27 || i==35) {  // weird hack to compensate for unknown addition addional 0x00 every 8th byte starting at 3 array index
+			if (i==3 || i==11 || i==19 || i==27 || i==35) {  // compensates for byte placement of infoframe done in kernel vc4 driver
 				i++; 		
 				len +=1;
 			}
 			printf (":%02x",buf[i]);
+			fwrite(&buf[i],1,1,out);
 		}
 		printf ("\n");
 	}
+	fclose(out);
 	free(buf);
 
 alloc_fail:
